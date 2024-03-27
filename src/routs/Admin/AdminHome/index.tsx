@@ -2,6 +2,7 @@ import "./styles.css";
 import { useEffect, useState } from "react";
 import { UserDTO } from "../../../models/user";
 import * as userService from "../../../services/user-service";
+
 export default function AdminHome() {
 
   const [user, setUser] = useState<UserDTO>();
