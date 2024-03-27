@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import "./styles.css";
 import cartIcon from "../../assets/cart.svg";
-import { useContext, useState } from "react";
-import * as cartService from "../../services/cart-service";
+import { useContext } from "react";
 import { ContextCartCount } from "../../utils/context-cart";
 
 export default function CartIcon() {
