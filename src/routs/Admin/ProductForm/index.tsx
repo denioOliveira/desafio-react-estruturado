@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import FormInput from "../../../components/FormInput";
 import * as forms from "../../../utils/forms";
 import * as productService from "../../../services/product-service";
+import FormTextArea from "../../../components/FormTextArea";
 
 export default function ProductForm() {
   const params = useParams();
@@ -19,6 +20,10 @@ export default function ProductForm() {
       name: "name",
       type: "text",
       placeholder: "Nome",
+      validation: function(value: string){
+        return /^.{3,80}$/.test(value);
+      },
+      message: "Favor informar um nome  de 3 a 80 caracteres"
     },
     price: {
       value: "",
@@ -38,6 +43,17 @@ export default function ProductForm() {
       type: "text",
       placeholder: "Imagem",
     },
+    description: {
+      value: "",
+      id: "description",
+      name: "description",
+      type: "text",
+      placeholder: "Descrição",
+      validation: function(value: string){
+        return /^.{10,}$/.test(value);
+      },
+      message: "A descrição deve ter pelo menos 10 acaracteres"
+    },
   });
 
   useEffect(() => {
@@ -50,13 +66,13 @@ export default function ProductForm() {
   }, []);
 
   function handleInputChange(event: any) {
-    const dataUpdated = forms.update(
-      formData,
-      event.target.name,
-      event.target.value
+    setFormData(
+      forms.updateAndValidate(formData, event.target.name, event.target.value)
     );
-    const dataValidated = forms.validate(dataUpdated, event.target.name);
-    setFormData(dataValidated);
+  }
+
+  function handleTurnDirty(name: string) {
+    setFormData(forms.dirtyAndValidate(formData, name));
   }
 
   return (
@@ -70,6 +86,7 @@ export default function ProductForm() {
                 <FormInput
                   {...formData.name}
                   className="dsc-form-control"
+                  onTurnDirty={handleTurnDirty}
                   onChange={handleInputChange}
                 />
                 <div className="dsc-form-error">{formData.name.message}</div>
@@ -78,6 +95,7 @@ export default function ProductForm() {
                 <FormInput
                   {...formData.price}
                   className="dsc-form-control"
+                  onTurnDirty={handleTurnDirty}
                   onChange={handleInputChange}
                 />
                 <div className="dsc-form-error">{formData.price.message}</div>
@@ -86,8 +104,18 @@ export default function ProductForm() {
                 <FormInput
                   {...formData.imgUrl}
                   className="dsc-form-control"
+                  onTurnDirty={handleTurnDirty}
                   onChange={handleInputChange}
                 />
+              </div>
+              <div>
+                <FormTextArea
+                  {...formData.description}
+                  className="dsc-form-control dsc-textarea"
+                  onTurnDirty={handleTurnDirty}
+                  onChange={handleInputChange}
+                />
+                <div className="dsc-form-error">{formData.description.message}</div>
               </div>
             </div>
 
