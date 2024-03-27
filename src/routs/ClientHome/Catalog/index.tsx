@@ -49,11 +49,7 @@ export default function Catalog() {
             <CatalogCard key={product.id} product={product} />
           ))}
         </div>
-        {!isLastPage && (
-          <div onClick={handleNextPageClick}>
-            <ButtonNextPage name="Carregar mais" />
-          </div>
-        )}
+        {!isLastPage && <ButtonNextPage onNextPage={handleNextPageClick} />}
       </section>
     </main>
   );

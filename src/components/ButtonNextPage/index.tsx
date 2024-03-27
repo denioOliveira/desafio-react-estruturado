@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import "./styles.css";
 
 type Props = {
-  name: string;
+  onNextPage: Function;
 };
 
-export default function ButtonNextPage({ name }: Props) {
-  return <div className="dsc-btn-next-page">{name}</div>;
+export default function ButtonNextPage({ onNextPage }: Props) {
+  return <div onClick={() => onNextPage()} className="dsc-btn-next-page">Carregar mais</div>;
 }
