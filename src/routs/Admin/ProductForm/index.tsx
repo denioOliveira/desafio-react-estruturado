@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import "./styles.css";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import FormInput from "../../../components/FormInput";
 import * as forms from "../../../utils/forms";
 import * as productService from "../../../services/product-service";
-import *as categoryService from "../../../services/category-service";
+import * as categoryService from "../../../services/category-service";
 import FormTextArea from "../../../components/FormTextArea";
 import { CategoryDTO } from "../../../models/category";
 import FormSelect from "../../../components/FormSelect";
@@ -14,6 +14,8 @@ import { selectStyles } from "../../../services/select";
 
 export default function ProductForm() {
   const params = useParams();
+
+  const navigate = useNavigate();
 
   const isEditing = params.productId !== "create";
 
@@ -26,10 +28,10 @@ export default function ProductForm() {
       name: "name",
       type: "text",
       placeholder: "Nome",
-      validation: function(value: string){
+      validation: function (value: string) {
         return /^.{3,80}$/.test(value);
       },
-      message: "Favor informar um nome  de 3 a 80 caracteres"
+      message: "Favor informar um nome  de 3 a 80 caracteres",
     },
     price: {
       value: "",
@@ -55,29 +57,28 @@ export default function ProductForm() {
       name: "description",
       type: "text",
       placeholder: "Descrição",
-      validation: function(value: string){
+      validation: function (value: string) {
         return /^.{10,}$/.test(value);
       },
-      message: "A descrição deve ter pelo menos 10 acaracteres"
+      message: "A descrição deve ter pelo menos 10 acaracteres",
     },
     categories: {
       value: [],
       id: "categories",
       name: "categories",
       placeholder: "Categorias",
-      validation: function(value: CategoryDTO[]){
+      validation: function (value: CategoryDTO[]) {
         return value.length > 0;
       },
-      message: "Escolha ao menos uma categoria"
-    }
+      message: "Escolha ao menos uma categoria",
+    },
   });
 
   useEffect(() => {
-    categoryService.findAllRequest()
-      .then(response => {
-        setCategories(response.data);
-      })
-  }, [])
+    categoryService.findAllRequest().then((response) => {
+      setCategories(response.data);
+    });
+  }, []);
 
   useEffect(() => {
     if (isEditing) {
@@ -98,16 +99,27 @@ export default function ProductForm() {
     setFormData(forms.dirtyAndValidate(formData, name));
   }
 
-  function handleSubmit(event: any){
+  function handleSubmit(event: any) {
     event.preventDefault();
 
     const formDataValidated = forms.dirtyAndValidateAll(formData);
-    if(forms.hasAnyInvalid(formDataValidated)){
+    if (forms.hasAnyInvalid(formDataValidated)) {
       setFormData(formDataValidated);
       return;
     }
 
-    //console.log(forms.toValues(formData));
+    const requestBody = forms.toValues(formData);
+    if (isEditing) {
+      requestBody.id = params.productId;
+    }
+
+    const request = isEditing
+      ? productService.updateRequest(requestBody)
+      : productService.insertRequest(requestBody);
+
+    request.then(() => {
+      navigate("/admin/products");
+    });
   }
 
   return (
@@ -150,15 +162,21 @@ export default function ProductForm() {
                   styles={selectStyles}
                   options={categories}
                   onChange={(obj: any) => {
-                    const newFormData = forms.updateAndValidate(formData, "categories", obj);
+                    const newFormData = forms.updateAndValidate(
+                      formData,
+                      "categories",
+                      obj
+                    );
                     setFormData(newFormData);
                   }}
                   onTurnDirty={handleTurnDirty}
                   isMulti
                   getOptionLabel={(obj: any) => obj.name}
                   getOptionValue={(obj: any) => String(obj.id)}
-                  />
-                  <div className="dsc-form-error">{formData.categories.message}</div>
+                />
+                <div className="dsc-form-error">
+                  {formData.categories.message}
+                </div>
               </div>
               <div>
                 <FormTextArea
@@ -167,7 +185,9 @@ export default function ProductForm() {
                   onTurnDirty={handleTurnDirty}
                   onChange={handleInputChange}
                 />
-                <div className="dsc-form-error">{formData.description.message}</div>
+                <div className="dsc-form-error">
+                  {formData.description.message}
+                </div>
               </div>
             </div>
 
