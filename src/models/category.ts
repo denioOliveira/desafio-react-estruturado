@@ -1,4 +1,4 @@
-export type categoryDTO = {
+export type CategoryDTO = {
   id: number;
   name: string;
 };
